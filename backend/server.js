@@ -27,9 +27,9 @@ app.use(express.json());
 const PORT = process.env.PORT || 4000;
 connectDB();
 
-app.get("/", (req, res) => {
-  res.send("running!");
-});
+// import Routers
+import authRouter from "./routes/authRoutes.js";
+app.use("/api/auth/", authRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
