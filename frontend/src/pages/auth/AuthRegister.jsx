@@ -21,9 +21,7 @@ const AuthRegister = () => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-
     const result = await dispatch(registerUser(formData));
-
     if (result.payload?.success) {
       toast({
         title: result.payload.message,
@@ -32,6 +30,7 @@ const AuthRegister = () => {
     } else {
       toast({
         title: result.payload.message,
+        variant: "destructive",
       });
     }
   };

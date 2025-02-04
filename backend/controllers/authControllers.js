@@ -1,11 +1,24 @@
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
+
+// Options
+const options = {
+  httpOnly: true,
+  secure: false,
+};
 
 // hash the password
 const hashPassword = async (password) => {
   const hashedPassword = await bcrypt.hash(password, 10);
   return hashedPassword;
+};
+
+// generate token
+const generateToken = (id, role, email) => {
+  return jwt.sign({ id, role, email }, process.env.JWT_SECRET, {
+    expiresIn: "60m",
+  });
 };
 
 const register = async (req, res) => {
@@ -50,7 +63,32 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   const { email, password } = req.body;
+
   try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not found!",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid Credentials",
+      });
+    }
+
+    const token = generateToken(user._id, user.role, user.email);
+
+    return res.status(200).cookie("token", token, options).json({
+      success: true,
+      user,
+      message: "User Logged in successfully!",
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,
