@@ -10,6 +10,7 @@ const hashPassword = async (password) => {
 
 const register = async (req, res) => {
   const { userName, email, password } = req.body;
+
   try {
     if ([email, userName, password].some((field) => field?.trim() === "")) {
       return res.status(400).json({
@@ -27,7 +28,7 @@ const register = async (req, res) => {
       });
     }
 
-    const hash = hashPassword(password);
+    const hash = await hashPassword(password);
 
     const user = await User.create({
       userName,
